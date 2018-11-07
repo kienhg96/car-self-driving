@@ -11,7 +11,8 @@ var Line = cc.Class.extend({
 
 var Route = cc.Class.extend({
 	isPointInside: function(P) {},
-	distanceToBorders: function(position, vDirection) {}
+	distanceToBorders: function(position, vDirection) {},
+	direction: function(position) {}
 });
 
 var CurveRoute = Route.extend({
@@ -20,6 +21,7 @@ var CurveRoute = Route.extend({
 		this._v1 = cc.v(center, P1);
 		this._v2 = cc.v(center, P2);
 		this._r = cc.distance(center, P1);
+		this._vPP = cc.v(P1, P2);
 		this.computeAngles();
 	},
 
@@ -39,7 +41,7 @@ var CurveRoute = Route.extend({
 		var vCP = cc.v(this._center, P);
 		var angle = cc.angleOfVector(vCP);
 
-		if (angle > _highBound || angle < _lowBound) {
+		if (angle > this._highBound || angle < this._lowBound) {
 			return false;
 		}
 		var CP = cc.len(vCP);
@@ -67,6 +69,20 @@ var CurveRoute = Route.extend({
 				left: smallDistance
 			}
 		}
+	},
+
+	direction: function(position) {
+		var vCP = cc.v(this._center, position);
+		var vDir = cc.p(vCP.y, -vCP.x);
+		var CP = cc.len(vCP);
+		vDir.x /= CP;
+		vDir.y /= CP;
+
+		if (cc.dot(this._vPP, vDir) < 0) {
+			vDir.x *= -1;
+			vDir.y *= -1;
+		}
+		return vDir;
 	}
 });
 
@@ -74,6 +90,7 @@ var StraightRoute = Route.extend({
 	ctor: function(startP, endP) {
 		this._baseLine = new Line(startP, endP);
 		this.computeBorders();
+		this.computeDirection();
 	},
 
 	computeBorders: function() {
@@ -97,6 +114,14 @@ var StraightRoute = Route.extend({
 		this._border1 = new Line(P1_1, P2_1);
 		this._border2 = new Line(P1_2, P2_2);
 		this._v = v;
+	},
+
+	computeDirection: function() {
+		var direction = cc.v(this._baseLine.P1, this._baseLine.P2);
+		var len = cc.len(direction);
+		direction.x /= len;
+		direction.y /= len;
+		this._direction = direction;
 	},
 
 	borders: function(vDirection) {
@@ -132,5 +157,9 @@ var StraightRoute = Route.extend({
 			left: borders.left.distance(position),
 			right: borders.right.distance(position)
 		}
+	},
+
+	direction: function(position) {
+		return this._direction;
 	}
 });

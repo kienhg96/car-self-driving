@@ -3,12 +3,16 @@ var MapLayer = cc.Layer.extend({
 		this._super();
 		// this.renderBackground();
 		this.renderDrawNode();
+		this.renderCar();
 	},
 
 	onEnter: function() {
 		this._super();
-		this.renderSample();
+		// this.renderSample();
 		this.initEvents();
+		CarController.instance.setCar(Car.instance);
+		CarController.instance.run();
+		this.showRoundBorders();
 	},
 
 	renderBackground: function() {
@@ -16,15 +20,20 @@ var MapLayer = cc.Layer.extend({
 		this.addChild(this._bg);
 	},
 
+	renderCar: function() {
+		Car.instance = new Car();
+		this.addChild(Car.instance);
+	},
+
 	renderDrawNode: function() {
 		this._drawNode = new cc.DrawNode();
 		// this._drawNode.setScale(1.5);
 		this.addChild(this._drawNode);
-		var center = cc.p(
-			cc.winSize.width / 2,
-			cc.winSize.height / 2
-		);
-		this._drawNode.setPosition(center);
+		// var center = cc.p(
+		// 	cc.winSize.width / 2,
+		// 	cc.winSize.height / 2
+		// );
+		// this._drawNode.setPosition(center);
 	},
 
 	drawDot: function(position, color) {
@@ -109,6 +118,13 @@ var MapLayer = cc.Layer.extend({
 		}
 	},
 	onKeyReleased: function(key, event) {},
+
+	showRoundBorders: function() {
+		var routes = CarAssistant.instance.routes();
+		for (var i = 0; i < routes.length; i++) {
+			this.drawRoute(routes[i]);
+		}
+	},
 
 	renderSample: function() {
 		var verts = [cc.p(0, 40), cc.p(60, 80), cc.p(180, 0), cc.p(200, 100)];

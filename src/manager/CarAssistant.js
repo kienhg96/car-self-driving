@@ -1,4 +1,51 @@
 var CarAssistant = cc.Class.extend({
+	init: function(position) {
+		for (var i = 0; i < this._routes.length; i++) {
+			if (this._routes[i].isPointInside(position)) {
+				this._currentRoute = this._routes[i];
+				this._currentRouteIndex = i;
+				// Find initial directions
+				return this._currentRoute.direction(position);
+			}
+		}
+		cc.log("WARNING: NO ROUTE DETECTED");
+		return cc.p(1, 0);
+	},
+
+	distance: function(position, direction) {
+		if (this._currentRoute && !this._currentRoute.isPointInside(position)) {
+			this._currentRoute = null;
+			// Find next
+			var nextRoute = this._routes[this._currentRouteIndex + 1];
+			if (nextRoute && nextRoute.isPointInside(position)) {
+				this._currentRoute = nextRoute;
+				this._currentRouteIndex++;
+			}
+			// Find previous
+			if (!this._currentRoute) {
+				var prevRoute = this._routes[this._currentRouteIndex - 1];
+				if (prevRoute && prevRoute.isPointInside(position)) {
+					this._currentRoute = prevRoute;
+					this._currentRouteIndex--;
+				}
+			}
+			// Find all
+			if (!this._currentRoute) {
+				for (var i = 0; i < this._routes.length; i++) {
+					if (this._routes[i].isPointInside(position)) {
+						this._currentRoute = this._routes[i];
+						this._currentRouteIndex = i;
+					}
+				}
+			}
+		}
+		if (!this._currentRoute) {
+			cc.log("WARNING: NO ROUTE DETECTED", JSON.stringify(position));
+			return null;
+		}
+		return this._currentRoute.distanceToBorders(position, direction);
+	},
+
 	computeCentroid: function(E, A, F) {
 		var vAE = cc.v(A, E);
 		var vAF = cc.v(A, F);
@@ -19,7 +66,6 @@ var CarAssistant = cc.Class.extend({
 			A.x + d * (F.x - A.x) / AF,
 			A.y + d * (F.y - A.y) / AF
 		);
-		
 
 		var C1, C2;
 		if (A.y === B.y) {
@@ -53,10 +99,6 @@ var CarAssistant = cc.Class.extend({
 		} else {
 			C = C2;
 		}
-		// C.B = B;
-		// C.D = D;
-		// C.r = BC;
-		// C.d = d;
 
 		return {
 			C: C,
@@ -89,6 +131,16 @@ var CarAssistant = cc.Class.extend({
 			}
 		}
 
+		this._routes = routes;
+
 		return routes;
+	},
+
+	routes: function() {
+		return this._routes;
+	},
+
+	hintDirection: function(position) {
+		return this._currentRoute.direction(position);
 	}
 });

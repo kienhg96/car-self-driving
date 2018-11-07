@@ -44,8 +44,8 @@ cc.distanceToLine = function(P, A, B) {
 	}
 	var AB = cc.distance(A, B);
 
-	var cosP = cc.dot(vPA, vPB) / (PA  * PB);
-	var sinP = Math.sqrt(1 - cosP * cosP);
+	var cosP = cc.dot(vPA, vPB) / (PA * PB);
+	var sinP = Math.sqrt(Math.abs(1 - cosP * cosP));
 	var d = PA * PB * sinP / AB;
 	return d;
 }

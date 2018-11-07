@@ -10,5 +10,6 @@ for (var i in res) {
 
 // Config
 const Values = {
-	laneWidth: 30
+	laneWidth: 30,
+	carBaseSpeed: 50
 };
