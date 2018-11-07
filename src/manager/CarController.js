@@ -13,22 +13,29 @@ var CarController = cc.Class.extend({
 			cc.p(400, 100),
 			cc.p(550, 150),
 			cc.p(800, 0),
+			cc.p(800, -200),
+			cc.p(0, -200),
+			cc.p(0, 40),
 		];
-		this._car.setPosition(verts[0]);	
+		this._car.setPosition(
+			(verts[0].x + verts[1].x) / 2,
+			(verts[0].y + verts[1].y) / 2
+		);	
 		this._car.run(verts);
 	},
 
-	onTick: function(dt, direction, distances) {
+	onTick: function(dt, direction, speed, distances) {
 		if (!distances) {
 			this._car.stop();
 			cc.log("Car stoped");
 			return null;
 		}
-		// var left = distances.left;
-		// var right = distances.right;
-		// cc.log("Left", left, "Right", right);
+		// cc.log("Left", distances.left, "Right", distances.right);
 
 		// return direction;
-		return CarAssistant.instance.hintDirection(this._car.getPosition());;
+		return {
+			direction: CarAssistant.instance.hintDirection(this._car.getPosition()),
+			speed: speed
+		};
 	}
 });

@@ -75,9 +75,9 @@ var MapLayer = cc.Layer.extend({
 
 			this.drawLine(route._baseLine.P1, route._baseLine.P2, cc.color.BLUE);
 		} else {
-			this.drawSector(route._center, route._r, route._startAngle, route._angle, 50, cc.color.BLUE);
+			this.drawSector(route._center, route._r, route._startAngle, route._angle, 30, cc.color.BLUE);
 			this.drawSector(route._center, route._r + Values.laneWidth, route._startAngle, route._angle, 50, cc.color.WHITE);
-			this.drawSector(route._center, route._r - Values.laneWidth, route._startAngle, route._angle, 50, cc.color.WHITE);
+			this.drawSector(route._center, route._r - Values.laneWidth, route._startAngle, route._angle, 10, cc.color.WHITE);
 			this.drawDot(route._center);
 		}
 	},

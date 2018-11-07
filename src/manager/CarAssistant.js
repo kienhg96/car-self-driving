@@ -90,18 +90,29 @@ var CarAssistant = cc.Class.extend({
 			);
 		}
 
-		// Check distance from A to C and C to B
-		var BC = cc.distance(B, C1);
-		var AC = cc.distance(A, C1);
+		var vAC = cc.v(A, C1);
+		var ccw = (vAC.x * vAE.y - vAE.x * vAC.y) * (vAC.x * vAF.y - vAF.x * vAC.y);
+		// cc.log("ccw", ccw);
 		var C;
-		if (AC > BC) {
-			C = C1;
-		} else {
+		if (ccw > 0) {
 			C = C2;
+		} else {
+			C = C1;
+		}
+
+		// Check the distance 
+		var dAE = cc.distanceToLine(C, A, E);
+		var dAF = cc.distanceToLine(C, A, F);
+		if (Math.abs(dAF - dAE) > 1) {
+			if (C === C1) {
+				C = C2;
+			} else {
+				C = C1;
+			}
 		}
 
 		return {
-			C: C,
+			C: C,	
 			B: B,
 			D: D,
 		};
@@ -122,12 +133,27 @@ var CarAssistant = cc.Class.extend({
 
 		linePoints.push(verts[verts.length - 1]);
 
+		var firstPoint = linePoints[0];
+		var lastPoint = linePoints[linePoints.length - 1];
+		if (firstPoint.x === lastPoint.x && firstPoint.y === lastPoint.y) {
+			var E = linePoints[linePoints.length - 2];
+			var A = firstPoint;
+			var F = linePoints[1];
+			var result = this.computeCentroid(E, A, F);
+			var curveRoute = new CurveRoute(result.C, result.B, result.D);
+			curveRoutes.push(curveRoute);
+			linePoints[linePoints.length - 1] = result.B;
+			linePoints[0] = result.D;
+		}
+
 		var routes = [];
 		for (var i = 0; i < linePoints.length; i += 2) {
 			var route = new StraightRoute(linePoints[i], linePoints[i + 1]);
 			routes.push(route);
 			if (curveRoutes.length > 0) {
-				routes.push(curveRoutes.shift());
+				var curveRoute = curveRoutes.shift();
+				// cc.log("cuver", JSON.stringify(curveRoute));
+				routes.push(curveRoute);
 			}
 		}
 
