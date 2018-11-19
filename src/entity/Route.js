@@ -23,6 +23,7 @@ var CurveRoute = Route.extend({
 		this._r = cc.distance(center, P1);
 		this._vPP = cc.v(P1, P2);
 		this.computeAngles();
+		this.createTrafficLight();
 	},
 
 	computeAngles: function() {
@@ -35,13 +36,23 @@ var CurveRoute = Route.extend({
 			this._highBound = this._startAngle;
 			this._lowBound = this._startAngle + this._angle;
 		}
+		var vMid = cc.p(
+			this._v1.x + this._v2.x,
+			this._v1.y + this._v2.y
+		);
+		var lenMid = cc.len(vMid);
+		vMid.x = vMid.x * this._r / lenMid;
+		vMid.y = vMid.y * this._r / lenMid;
+		this._M = cc.p(
+			this._center.x + vMid.x,
+			this._center.y + vMid.y
+		);
 	},
 
 	isPointInside: function(P) {
 		var vCP = cc.v(this._center, P);
 		var angle = cc.angleOfVector(vCP);
-
-		if (angle > this._highBound || angle < this._lowBound) {
+		if (!this.angleIsInside(angle, this._lowBound, this._highBound)) {
 			return false;
 		}
 		var CP = cc.len(vCP);
@@ -49,6 +60,19 @@ var CurveRoute = Route.extend({
 			CP >= this._r - Values.laneWidth 
 			&& CP <= this._r + Values.laneWidth
 		);
+	},
+
+	angleIsInside: function(angle, start, end) {
+		if (angle > end) {
+			angle -= 2 * Math.PI;
+		}
+		if (angle < start) {
+			angle += 2 * Math.PI;
+		}
+		if (angle > end || angle < start) {
+			return false;
+		}
+		return true;
 	},
 
 	distanceToBorders: function(position, vDirection) {
@@ -83,6 +107,16 @@ var CurveRoute = Route.extend({
 			vDir.y *= -1;
 		}
 		return vDir;
+	},
+
+	createTrafficLight: function() {
+		this._trafficLight = new TrafficLight();
+		this._trafficLight.retain();
+		this._trafficLight.setPosition(this._center);
+	},
+
+	trafficLight: function() {
+		return this._trafficLight;
 	}
 });
 
@@ -144,7 +178,6 @@ var StraightRoute = Route.extend({
 		var vBP = cc.v(this._baseLine.P2, P);
 		var vAB = cc.v(this._baseLine.P1, this._baseLine.P2);
 		var vBA = cc.p(-1  * vAB.x, -1 * vAB.y);
-
 		if (cc.dot(vAP, vAB) < 0 || cc.dot(vBP, vBA) < 0) {
 			return false;
 		}

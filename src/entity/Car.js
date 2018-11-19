@@ -1,13 +1,14 @@
 var Car = cc.Sprite.extend({
 	ctor: function() {
 		this._super(res.car);
+		this.setScale(0.5);
 	},
 
 	run: function(verts) {
 		var position = this.getPosition();
 		CarAssistant.instance.buildRoutes(verts);
 		this._direction = CarAssistant.instance.init(position);
-		this._speed = 1;
+		this._speed = 50;
 		this.scheduleUpdate();
 	},
 
@@ -23,8 +24,8 @@ var Car = cc.Sprite.extend({
 		var angle = cc.angleOfVector(this._direction);
 		this.setRotation(-angle * 180 / Math.PI);
 
-		this.x += this._speed * Values.carBaseSpeed * dt * this._direction.x;
-		this.y += this._speed * Values.carBaseSpeed * dt * this._direction.y;
+		this.x += this._speed * dt * this._direction.x;
+		this.y += this._speed * dt * this._direction.y;
 	},
 
 	stop: function() {

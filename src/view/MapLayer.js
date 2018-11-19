@@ -1,22 +1,32 @@
 var MapLayer = cc.Layer.extend({
 	ctor: function() {
 		this._super();
-		// this.renderBackground();
+		this.renderBackground();
 		this.renderDrawNode();
 		this.renderCar();
+		this.setScale(2.0);
 	},
 
 	onEnter: function() {
 		this._super();
 		// this.renderSample();
 		this.initEvents();
+		var self = this;
+		var mapHeight = this._bg.height;
+		// Edit nodes position
 		CarController.instance.setCar(Car.instance);
+		CarController.instance.nodes().forEach(function(node, index) {
+			node.y = mapHeight - node.y;
+			self.drawDot(node);
+			self.drawText(index.toString(), cc.p(node.x, node.y + 10));
+		});
 		CarController.instance.run();
 		this.showRoundBorders();
 	},
 
 	renderBackground: function() {
 		this._bg = new cc.Sprite(res.map);
+		this._bg.setPosition(this._bg.width / 2, this._bg.height / 2);
 		this.addChild(this._bg);
 	},
 
@@ -27,13 +37,7 @@ var MapLayer = cc.Layer.extend({
 
 	renderDrawNode: function() {
 		this._drawNode = new cc.DrawNode();
-		// this._drawNode.setScale(1.5);
 		this.addChild(this._drawNode);
-		// var center = cc.p(
-		// 	cc.winSize.width / 2,
-		// 	cc.winSize.height / 2
-		// );
-		// this._drawNode.setPosition(center);
 	},
 
 	drawDot: function(position, color) {
@@ -62,6 +66,14 @@ var MapLayer = cc.Layer.extend({
 		}
 	},
 
+	drawText: function(text, position, color, fontSize) {
+		var text = new cc.LabelTTF(text, "Arial", fontSize || 14);
+		text.setFontFillColor(color || cc.color.RED);
+		text.setPosition(position);
+		this.addChild(text);
+		return text;
+	},
+
 	drawRoute: function(route) {
 		if (route instanceof StraightRoute) {
 			var borders = route.borders();
@@ -79,6 +91,8 @@ var MapLayer = cc.Layer.extend({
 			this.drawSector(route._center, route._r + Values.laneWidth, route._startAngle, route._angle, 50, cc.color.WHITE);
 			this.drawSector(route._center, route._r - Values.laneWidth, route._startAngle, route._angle, 10, cc.color.WHITE);
 			this.drawDot(route._center);
+			// Draw Traffic line
+			// this.addChild(route.trafficLight());
 		}
 	},
 
@@ -126,11 +140,13 @@ var MapLayer = cc.Layer.extend({
 		}
 	},
 
+	toggleMapRoutes: function() {
+		this._drawNode.setVisible(!this._drawNode.isVisible());
+	},
+
 	renderSample: function() {
-		var verts = [cc.p(0, 40), cc.p(60, 80), cc.p(180, 0), cc.p(200, 100)];
-		var routes = CarAssistant.instance.buildRoutes(verts);
-		for (var i = 0; i < routes.length; i++) {
-			this.drawRoute(routes[i]);
-		}
+		var traffic = new TrafficLight();
+		this.addChild(traffic);
+		traffic.setPosition(cc.winSize.width / 2, cc.winSize.height / 2)
 	}
 });

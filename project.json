@@ -16,6 +16,7 @@
         "src/utils.js",
 
         "src/entity/Car.js",
+        "src/entity/TrafficLight.js",
         "src/entity/RaceMap.js",
         "src/entity/Route.js",
 
@@ -23,6 +24,7 @@
         "src/manager/CarController.js",
 
         "src/view/MapLayer.js",
+        "src/view/GuiLayer.js",
         "src/view/MainScene.js"
     ]
 }
