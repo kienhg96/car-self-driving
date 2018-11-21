@@ -34,6 +34,20 @@ var CarController = cc.Class.extend({
 		});
 		this._nodes = nodes;
 		this._edges = edges;
+		var edgeMatrix = [];
+		for (var i = 0; i < nodes.length; i++) {
+			var row = [];
+			for (var j = 0; j < nodes.length; j++) {
+				row.push(INF);
+			}
+			edgeMatrix.push(row);
+		}
+		edges.forEach(function(edge) {
+			var distance = cc.distance(nodes[edge.x], nodes[edge.y]);
+			edgeMatrix[edge.x][edge.y] = distance;
+			edgeMatrix[edge.y][edge.x] = distance;
+		});
+		this._edgesMatrix = edgeMatrix;
 	},
 
 	nodes: function() {
@@ -50,46 +64,54 @@ var CarController = cc.Class.extend({
 
 	run: function(start, end) {
 		var nodes = this._nodes;
+		var startNodeIndex = 0;
+		var endNodeIndex = 0;
+		var distanceStart = Infinity;
+		var distanceEnd = Infinity;
+		// Find the neaest node
+		for (var i = 0; i < nodes.length; i++) {
+			var tmpStart = cc.distance(nodes[i], start);
+			var tmpEnd = cc.distance(nodes[i], end);
+			if (tmpStart < distanceStart) {
+				startNodeIndex = i;
+				distanceStart = tmpStart;
+			}
+			if (tmpEnd < distanceEnd) {
+				endNodeIndex = i;
+				distanceEnd = tmpEnd;
+			}
+		}
+
 		// Calc verts
-		var verts = [
-			// nodes[8],
-			// nodes[20],
-			nodes[18],
-			nodes[17],
-			// nodes[16],
-			nodes[15],
-			// nodes[14],
-			nodes[13],
-			// nodes[12],
-			nodes[11],
-			nodes[10],
-			nodes[9],
-			nodes[7],
-			nodes[6],
-			nodes[5],
-			nodes[4],
-			nodes[3],
-			nodes[2],
-			nodes[1],
-			nodes[0],
-		];
-		
-		this._car.setPosition(verts[0]);	
+		var path = dijktra(startNodeIndex, endNodeIndex, this._edgesMatrix);
+		var verts = path.map(function(index) {
+			return nodes[index];
+		});
+		start = verts[0];
+		this._car.setPosition(start);
 		this._car.run(verts);
+		// MapLayer.instance.centerTo(start);
+		MapLayer.instance.clearRoundBorders();
+		MapLayer.instance.showRoundBorders();
+	},
+
+	stop: function() {
+		this._car.stop();
 	},
 
 	onTick: function(dt, direction, speed, distances) {
 		if (!distances) {
 			this._car.stop();
+			MapLayer.instance.onStop();
 			cc.log("Car stoped");
 			return null;
 		}
-		// cc.log("Left", distances.left, "Right", distances.right);
+		cc.log("Left", distances.left, "Right", distances.right);
 
 		// return direction;
 		return {
 			direction: CarAssistant.instance.hintDirection(this._car.getPosition()),
 			speed: speed
 		};
-	}
+	},
 });

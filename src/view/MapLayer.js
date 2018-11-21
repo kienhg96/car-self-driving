@@ -1,10 +1,13 @@
 var MapLayer = cc.Layer.extend({
 	ctor: function() {
 		this._super();
+		this._lockMap = false;
+		this._isRunning = false;
 		this.renderBackground();
 		this.renderDrawNode();
 		this.renderCar();
-		this.setScale(2.0);
+		// this.setScale(1.5);
+		this.renderStartEndPoints();
 	},
 
 	onEnter: function() {
@@ -15,13 +18,32 @@ var MapLayer = cc.Layer.extend({
 		var mapHeight = this._bg.height;
 		// Edit nodes position
 		CarController.instance.setCar(Car.instance);
-		CarController.instance.nodes().forEach(function(node, index) {
+		var nodes = CarController.instance.nodes();
+		nodes.forEach(function(node, index) {
 			node.y = mapHeight - node.y;
 			self.drawDot(node);
 			self.drawText(index.toString(), cc.p(node.x, node.y + 10));
 		});
-		CarController.instance.run();
-		this.showRoundBorders();
+		CarController.instance.edges().forEach(function(edge) {
+			self.drawLine(nodes[edge.x], nodes[edge.y]);
+		});
+		// CarController.instance.run();
+		// this.showRoundBorders();
+	},
+
+	toggleLockMap: function() {
+		if (this._lockMap) {
+			this.unscheduleUpdate();
+			this._lockMap = false;
+		} else {
+			this.scheduleUpdate();
+			this._lockMap = true;
+		}
+	},
+
+	centerTo: function(point) {
+		var scale = this.getScale();
+		this.setPosition((-point.x + cc.winSize.width / 2) * scale, (-point.y + cc.winSize.height / 2) * scale);
 	},
 
 	renderBackground: function() {
@@ -144,9 +166,54 @@ var MapLayer = cc.Layer.extend({
 		this._drawNode.setVisible(!this._drawNode.isVisible());
 	},
 
+	clearRoundBorders: function() {
+		this._drawNode.clear();
+	},
+
 	renderSample: function() {
 		var traffic = new TrafficLight();
 		this.addChild(traffic);
 		traffic.setPosition(cc.winSize.width / 2, cc.winSize.height / 2)
+	},
+
+	update: function(dt) {
+		var position = Car.instance.getPosition();
+		this.centerTo(position);
+	},
+
+	renderStartEndPoints: function() {
+		var start = new FlagPointSprite(res.icon_start);
+		var end = new FlagPointSprite(res.icon_end);
+		start.setPosition(0, 0);
+		end.setPosition(this._bg.width, this._bg.height);
+		this.addChild(start);
+		this.addChild(end);
+		this._startPoint = start;
+		this._endPoint = end;
+	},
+
+	toggleStart: function() {
+		if (this._isRunning) {
+			this._isRunning = false;
+			this._startPoint.setVisible(true);
+			this._endPoint.setVisible(true);
+			CarController.instance.stop();
+			this.unscheduleUpdate();
+		} else {
+			this._isRunning = true;
+			var start = this._startPoint.getPosition();
+			var end = this._endPoint.getPosition();
+			this._startPoint.setVisible(false);
+			this._endPoint.setVisible(false);
+			CarController.instance.run(start, end);
+		}
+	},
+
+	onStop: function() {
+		this._isRunning = false;
+		this._startPoint.setVisible(true);
+		this._endPoint.setVisible(true);
+		this._lockMap = false;
+		this.unscheduleUpdate();
 	}
 });

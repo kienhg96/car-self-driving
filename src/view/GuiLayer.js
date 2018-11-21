@@ -2,6 +2,8 @@ var GuiLayer = cc.Layer.extend({
 	ctor: function() {
 		this._super();
 		this.renderToggleMapButton();
+		this.renderLockMapButton();
+		this.renderStartButton();
 	},
 
 	renderToggleMapButton: function() {
@@ -12,9 +14,37 @@ var GuiLayer = cc.Layer.extend({
 		this._toggleMapBtn.addTouchEventListener(this.handleMapBtnToggle, this);
 	},
 
-	handleMapBtnToggle: function(sener, type) {
+	handleMapBtnToggle: function(sender, type) {
 		if (type === ccui.Widget.TOUCH_ENDED) {
 			MapLayer.instance.toggleMapRoutes();
+		}
+	},
+
+	renderLockMapButton: function() {
+		this._lockBtn = new ccui.Button(res.map_lock_btn, res.map_lock_btn, res.map_lock_btn);
+		var size = this._lockBtn.getContentSize();
+		this._lockBtn.setPosition(this._toggleMapBtn.x - this._toggleMapBtn.width / 2 - size.width / 2 - 10, cc.winSize.height - size.height / 2 - 10);
+		this.addChild(this._lockBtn);
+		this._lockBtn.addTouchEventListener(this.handleLockBtn, this);
+	},
+
+	handleLockBtn: function(sender, type) {
+		if (type === ccui.Widget.TOUCH_ENDED) {
+			MapLayer.instance.toggleLockMap();
+		}
+	},
+
+	renderStartButton: function() {
+		this._startBtn = new ccui.Button(res.start_btn, res.start_btn, res.start_btn);
+		var size = this._startBtn.getContentSize();
+		this._startBtn.setPosition(this._lockBtn.x - this._lockBtn.width / 2 - size.width / 2 - 10, cc.winSize.height - size.height / 2 - 10);
+		this.addChild(this._startBtn);
+		this._startBtn.addTouchEventListener(this.handleStartBtn, this);
+	},
+
+	handleStartBtn: function(sender, type) {
+		if (type === ccui.Widget.TOUCH_ENDED) {
+			MapLayer.instance.toggleStart();
 		}
 	}
 });
