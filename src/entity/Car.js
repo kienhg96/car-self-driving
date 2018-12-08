@@ -1,3 +1,4 @@
+var BASE_SPEED = 50;
 var Car = cc.Sprite.extend({
 	ctor: function() {
 		this._super(res.car);
@@ -8,7 +9,7 @@ var Car = cc.Sprite.extend({
 		var position = this.getPosition();
 		CarAssistant.instance.buildRoutes(verts);
 		this._direction = CarAssistant.instance.init(position);
-		this._speed = 50;
+		this._speed = BASE_SPEED;
 		this.scheduleUpdate();
 	},
 

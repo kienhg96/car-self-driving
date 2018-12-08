@@ -23,6 +23,7 @@
 
         "src/manager/CarAssistant.js",
         "src/manager/CarController.js",
+        "src/manager/DirectionManager.js",
 
         "src/view/FlagPointSprite.js",
         "src/view/MapLayer.js",

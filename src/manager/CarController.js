@@ -106,22 +106,26 @@ var CarController = cc.Class.extend({
 			cc.log("Car stoped");
 			return null;
 		}
-		const ratio = distances.left / (distances.left + distances.right);
-		let angle = cc.angleOfVector(direction);
-		const deltaAngle = (ratio - 0.5) * dt * 20;
-		// cc.log("Angle " + angle);
-		// cc.log("Ratio: " + ratio);
-		// cc.log("Delta Angle: " + deltaAngle);
+		return this.directionCtrl(dt, direction, speed, distances);
+	},
+
+	directionCtrl: function(dt, direction, speed, distances) {
+		var ratio = distances.left / (distances.left + distances.right);
+		var angle = cc.angleOfVector(direction);
+		var deltaAngle = (ratio - 0.5) * dt * 20;
+
 		angle += deltaAngle;
-		const newDirection = cc.p(
+		var nDirection = cc.p(
 			Math.cos(angle),
 			Math.sin(angle)
 		);
+		var nSpeed = (1 - Math.abs(ratio - 0.5)) * BASE_SPEED;
 		// return direction;
+		cc.log("Speed", nSpeed);
 		return {
 			// direction: CarAssistant.instance.hintDirection(this._car.getPosition()),
-			speed: speed,
-			direction: newDirection
+			speed: nSpeed,
+			direction: nDirection
 		};
-	},
+	}
 });
