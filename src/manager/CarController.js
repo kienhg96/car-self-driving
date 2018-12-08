@@ -1,12 +1,15 @@
+const DirectionManager = require('./DirectionManager');
+const DeviationManager = require('./DeviationManager');
+
 var CarController = cc.Class.extend({
-	ctor: function() {
+	ctor: function () {
 		this.readMapConfig();
 	},
 
-	readMapConfig: function() {
+	readMapConfig: function () {
 		var nodes = [];
 		var edges = [];
-		cc.loader.loadTxt('res/edges.tsv', function(err, text) {
+		cc.loader.loadTxt('res/edges.tsv', function (err, text) {
 			if (err) {
 				cc.log("ERROR" + err);
 			}
@@ -42,7 +45,7 @@ var CarController = cc.Class.extend({
 			}
 			edgeMatrix.push(row);
 		}
-		edges.forEach(function(edge) {
+		edges.forEach(function (edge) {
 			var distance = cc.distance(nodes[edge.x], nodes[edge.y]);
 			edgeMatrix[edge.x][edge.y] = distance;
 			edgeMatrix[edge.y][edge.x] = distance;
@@ -50,19 +53,19 @@ var CarController = cc.Class.extend({
 		this._edgesMatrix = edgeMatrix;
 	},
 
-	nodes: function() {
+	nodes: function () {
 		return this._nodes;
 	},
 
-	edges: function() {
+	edges: function () {
 		return this._edges;
 	},
 
-	setCar: function(car) {
+	setCar: function (car) {
 		this._car = car;
 	},
 
-	run: function(start, end) {
+	run: function (start, end) {
 		var nodes = this._nodes;
 		var startNodeIndex = 0;
 		var endNodeIndex = 0;
@@ -84,7 +87,7 @@ var CarController = cc.Class.extend({
 
 		// Calc verts
 		var path = dijktra(startNodeIndex, endNodeIndex, this._edgesMatrix);
-		var verts = path.map(function(index) {
+		var verts = path.map(function (index) {
 			return nodes[index];
 		});
 		start = verts[0];
@@ -95,11 +98,11 @@ var CarController = cc.Class.extend({
 		MapLayer.instance.showRoundBorders();
 	},
 
-	stop: function() {
+	stop: function () {
 		this._car.stop();
 	},
 
-	onTick: function(dt, direction, speed, distances) {
+	onTick: function (dt, direction, speed, distances) {
 		if (!distances) {
 			this._car.stop();
 			MapLayer.instance.onStop();
@@ -109,17 +112,78 @@ var CarController = cc.Class.extend({
 		return this.directionCtrl(dt, direction, speed, distances);
 	},
 
-	directionCtrl: function(dt, direction, speed, distances) {
+	directionCtrl: function (dt, direction, speed, distances) {
 		var ratio = distances.left / (distances.left + distances.right);
 		var angle = cc.angleOfVector(direction);
 		var deltaAngle = (ratio - 0.5) * dt * 20;
 
-		angle += deltaAngle;
-		var nDirection = cc.p(
-			Math.cos(angle),
-			Math.sin(angle)
-		);
-		var nSpeed = (1 - Math.abs(ratio - 0.5)) * BASE_SPEED;
+		// angle += deltaAngle;
+		// var nDirection = cc.p(
+		// 	Math.cos(angle),
+		// 	Math.sin(angle)
+		// );
+		// Lưu luật dạng: IF x1=A, x2=B, ... THEN y=C
+		const direction_rules = [{ "IF": { "DEVIATION": "FAR_LEFT" }, "THEN": { "STEERING": "HARD_RIGHT" } }]
+		const speed_rules = [{ "IF": [{ "DEVIATION": "FAR_LEFT", "LIGHT_STATUS": null }], "THEN": { "SPEED": "HARD_RIGHT" } }]
+		// Mờ hóa các giá trị đầu vào rõ
+		// ví dụ ở đây: đầu vào deviation, giá trị rõ x
+		var deviation_dependencies = DeviationManager.get_dependencies(ratio);
+		var light_dependencies = LightManager.get_dependencies(light);
+		// thu được tập các [(<tên tập mờ>, <giá trị hàm thuộc của x trong tập mờ>)]
+		// có thể lấy thêm light_status_dependencies
+
+		// GET SPEED
+		// duyệt qua tất cả các luật xem có luật nào phù hợp với các tập mờ đầu vào
+		var rule_values = 0; // giá trị đầu ra của 1 luật
+		var rule_weights = 0; // cùng với trọng số của luật, 2 cái này để tính trung bình theo trọng số
+		for (rule in direction_rules) {
+			for (deviation_dep in deviation_dependencies) {
+				var dev_type = deviation_dep['type'];
+				var dev_dep_value = deviation_dep['value'];
+				for (light_dep in light_dependencies) {
+					var light_type = deviation_dep['type'];
+					var light_dep_value = deviation_dep['value'];
+					if (rule['IF']['DEVIATION'] == dev_type && rule['IF']['LIGHT_STATUS'] == light_type) { // khớp luật này
+						var min_dep_value = min(dev_dep_value, light_dep_value) // lấy min của các đầu vào
+						var speed_fuzzy_set = rule['THEN']['SPEED']
+						var rule_weight = dev_dep_value * light_dep_value // trọng số bằng tích giá trị hàm thuộc các luật
+						var defuzzy_value = defuzzy("cung cấp thông tin tập mờ tương ứng với biến <speed_fuzzy_set>, sẽ thu được giá trị khử mờ trọng tâm của tập mờ tương ứng, t search qua thì có cái thư viện này, ông thử đọc thêm xem cụ thể cần những gì: https://www.npmjs.com/package/fuzzylogic");
+						var rule_value = min(min_dep_value, defuzzy_value);
+						rule_values.push(rule_value);
+						rule_weights.push(rule_weight);
+					}
+				}
+
+			}
+		}
+		// Tính trung bình có trọng số của các luật
+		var tuso = 0, mauso = 0;
+		for (var i = 0; i < rule_values.length; ++i) {
+			tuso += rule_values[i] * rule_weights[i];
+			mauso += rule_weights[i];
+		}
+		var nSpeed = tuso / mauso; // đây là giá trị rõ của hướng sau khi khử mờ
+		// END
+		
+		// GET DIRECTION
+		// Chỗ này báo cáo nói: "Kết quả sẽ là giá trị Max của độ phụ thuộc của các biến ngôn ngữ" thì ko rõ là giá trị độ phụ thuộc luôn hay là giá trị đó nhân với giá trị khử mờ trọng tâm của tập mờ tương ứng. Thì t cứ làm theo cách 2
+		// Lấy luật khớp có giá trị hàm thuộc lớn nhất
+		var max_dev_dep_val = 0;
+		var max_dev_type = null;
+		for (rule in direction_rules) {
+			for (deviation_dep in deviation_dependencies) {
+				var dev_type = deviation_dep['type'];
+				var dev_dep_value = deviation_dep['value'];
+				if (rule['IF']['DEVIATION'] == dev_type) {
+					if (dev_dep_value > max_dev_dep_val) {
+						max_dev_dep_val = dev_dep_value;
+						max_dev_type = dev_type;
+					}
+				}
+			}
+		}
+		var nDirection = max_dev_dep_val * defuzzy(max_dev_type);
+		// var nSpeed = (1 - Math.abs(ratio - 0.5)) * BASE_SPEED;
 		// return direction;
 		cc.log("Speed", nSpeed);
 		return {

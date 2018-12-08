@@ -1,10 +1,10 @@
 var DirectionManager = {};
 const 
-	FAR_LEFT = "FAR_LEFT",
-	FAR_RIGHT = "FAR_RIGHT",
+	HARD_LEFT = "HARD_LEFT",
+	HARD_RIGHT = "HARD_RIGHT",
 	LEFT = "LEFT",
 	RIGHT = "RIGHT",
-	MIDDLE = "MIDDLE"
+	STRAIGHT = "STRAIGHT"
 	
 function _norm(v) {
 	if (v < 0) {
@@ -39,7 +39,7 @@ DirectionManager.Left = function(x) {
 	return 0;
 }
 
-DirectionManager.Middle = function(x) {
+DirectionManager.Straight = function(x) {
 	if (x < 0.4) {
 		return 0;
 	}
@@ -77,8 +77,8 @@ DirectionManager.FarRight = function(x) {
 
 DirectionManager.get_dependencies = function(x) {
 	const dependencies = []
-	const fuzzy_sets_dep_func = [DirectionManager.FarLeft, DirectionManager.Left, DirectionManager.Middle, DirectionManager.Right, DirectionManager.FarRight];
-	const fuzzy_sets_name = [FAR_LEFT, LEFT, MIDDLE, RIGHT, FAR_RIGHT]
+	const fuzzy_sets_dep_func = [DirectionManager.FarLeft, DirectionManager.Left, DirectionManager.Straight, DirectionManager.Right, DirectionManager.FarRight];
+	const fuzzy_sets_name = [HARD_LEFT, LEFT, MIDDLE, RIGHT, HARD_RIGHT]
 	for (var i = 0; i < fuzzy_sets_name.length; ++i) {
 		const func = fuzzy_sets_dep_func[i];
 		const name = fuzzy_sets_name[i];
