@@ -129,8 +129,8 @@ var CarController = cc.Class.extend({
 		// Mờ hóa các giá trị đầu vào rõ
 		// ví dụ ở đây: đầu vào deviation, giá trị rõ x
 		var deviation_dependencies = DeviationManager.get_dependencies(ratio);
-		var light_status_dependencies = LightStatus.get_dependencies(trafficLight);
-		var light_distance_dependencies = LightDistance.get_dependencies(distances)
+		var light_status_dependencies = LightStatus.get_dependencies(trafficLight.time);
+		var light_distance_dependencies = LightDistance.get_dependencies(trafficLight.distances)
 		// thu được tập các [(<tên tập mờ>, <giá trị hàm thuộc của x trong tập mờ>)]
 		// có thể lấy thêm light_status_dependencies
 
@@ -138,21 +138,26 @@ var CarController = cc.Class.extend({
 		// duyệt qua tất cả các luật xem có luật nào phù hợp với các tập mờ đầu vào
 		var rule_values = 0; // giá trị đầu ra của 1 luật
 		var rule_weights = 0; // cùng với trọng số của luật, 2 cái này để tính trung bình theo trọng số
-		for (rule in direction_rules) {
+		for (rule in speed_rules) {
 			for (deviation_dep in deviation_dependencies) {
 				var dev_type = deviation_dep['type'];
 				var dev_dep_value = deviation_dep['value'];
-				for (light_dep in light_dependencies) {
-					var light_type = deviation_dep['type'];
-					var light_dep_value = deviation_dep['value'];
-					if (rule['IF']['DEVIATION'] == dev_type && rule['IF']['LIGHT_STATUS'] == light_type) { // khớp luật này
-						var min_dep_value = min(dev_dep_value, light_dep_value) // lấy min của các đầu vào
-						var speed_fuzzy_set = rule['THEN']['SPEED']
-						var rule_weight = dev_dep_value * light_dep_value // trọng số bằng tích giá trị hàm thuộc các luật
-						var defuzzy_value = ;
-						var rule_value = min(min_dep_value, defuzzy_value);
-						rule_values.push(rule_value);
-						rule_weights.push(rule_weight);
+				for (light_status_dep in light_status_dependencies) {
+					var light_status_type = light_status_dep['type'];
+					var light_status_dep_value = light_status_dep['value'];
+					for (light_dis_dep in light_distance_dependencies) {
+						var light_dis_type = light_dis_dep['type'];
+						var light_dis_dep_val = light_dis_dep['value'];
+						if (rule['IF']['DEVIATION'] == dev_type && rule['IF']['LIGHT_STATUS'] == light_status_type && rule['IF']['LIGHT_DIS'] == light_dis_type) { // khớp luật này
+							var min_dep_value = min(dev_dep_value, light_dep_value, light_dis_dep_val) // lấy min của các đầu vào
+							var speed_fuzzy_set_name = rule['THEN']['SPEED']
+							var rule_weight = dev_dep_value * light_dep_value * light_dis_dep_val // trọng số bằng tích giá trị hàm thuộc các luật
+							
+							var defuzzy_value = centroid(x, mfx);
+							var rule_value = min(min_dep_value, defuzzy_value);
+							rule_values.push(rule_value);
+							rule_weights.push(rule_weight);
+						}
 					}
 				}
 
