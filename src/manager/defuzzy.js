@@ -1,11 +1,28 @@
-modules.exports = function centroid(x, mfx) {
+function _norm(v) {
+	if (v < 0) {
+		return 0;
+	}
+	if (v > 1) {
+		return 1;
+	}
+	return v;
+}
+// for (var i = -1; i< 1.5; i += 0.01) {
+//     var myval = hl(i);
+//     var libval = fz.trapezoid(i, 0, 0, 0.25, 0.4);
+//     if (myval - libval > 1e-3) {
+//         console.log("FALSE");
+//         console.log(myval + " > " + libval);
+//     }
+// }
+function centroid(x, mfx) {
     
     var sum_moment_area = 0.0
     var sum_area = 0.0
 
     // If the membership function is a singleton fuzzy set:
     if (x.length == 1) 
-        return x[0]*mfx[0] / np.fmax(mfx[0], np.finfo(float).eps).astype(float)
+        return x[0]*mfx[0] / Math.max(mfx[0], Number.MIN_VALUE)
 
     // else return the sum of moment*area/sum of area
     for (var i = 1; i < x.length; ++i) {

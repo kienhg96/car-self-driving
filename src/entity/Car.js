@@ -1,4 +1,6 @@
 var BASE_SPEED = 50;
+var LIGHT_STATUS = ['RED', 'YELLO', 'GREEN'];
+
 var Car = cc.Sprite.extend({
 	ctor: function() {
 		this._super(res.car);
@@ -16,7 +18,18 @@ var Car = cc.Sprite.extend({
 	update: function(dt) {
 		var position = this.getPosition();
 		var distances = CarAssistant.instance.distance(position, this._direction);
-		var result = CarController.instance.onTick(dt, this._direction, this._speed, distances);
+		var nextTrafficLight = CarAssistant.instance.nextTrafficLight();
+		var trafficLight = {};
+		if (nextTrafficLight) {
+			trafficLight.distance = cc.distance(position, nextTrafficLight.getPosition());
+			trafficLight.time = nextTrafficLight.remainTime();
+			trafficLight.light = LIGHT_STATUS[nextTrafficLight.status()];
+		} else {
+			trafficLight.distance = 10000;
+			trafficLight.time = 10000;
+			trafficLight.light = LIGHT_STATUS[2];
+		}
+		var result = CarController.instance.onTick(dt, this._direction, this._speed, distances, trafficLight);
 		if (!result) {
 			return;
 		}

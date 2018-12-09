@@ -77,6 +77,13 @@ var TrafficLight = cc.Sprite.extend({
 		}
 	},
 
+	remainTime: function() {
+		return this._remainTime;
+	},
+
+	status: function() {
+		return this._status;
+	}
 });
 
 TrafficLight.RED = 0;

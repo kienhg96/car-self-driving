@@ -112,7 +112,11 @@ var CurveRoute = Route.extend({
 	createTrafficLight: function() {
 		this._trafficLight = new TrafficLight();
 		this._trafficLight.retain();
-		this._trafficLight.setPosition(this._center);
+		this._trafficLight.setPosition(this._M);
+	},
+
+	middle: function() {
+		return this._M;
 	},
 
 	trafficLight: function() {
