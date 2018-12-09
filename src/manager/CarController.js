@@ -1,5 +1,6 @@
 const DirectionManager = require('./DirectionManager');
 const DeviationManager = require('./DeviationManager');
+const fuzzylogic = require('fuzzylogic');
 
 var CarController = cc.Class.extend({
 	ctor: function () {
@@ -147,7 +148,7 @@ var CarController = cc.Class.extend({
 						var min_dep_value = min(dev_dep_value, light_dep_value) // lấy min của các đầu vào
 						var speed_fuzzy_set = rule['THEN']['SPEED']
 						var rule_weight = dev_dep_value * light_dep_value // trọng số bằng tích giá trị hàm thuộc các luật
-						var defuzzy_value = defuzzy("cung cấp thông tin tập mờ tương ứng với biến <speed_fuzzy_set>, sẽ thu được giá trị khử mờ trọng tâm của tập mờ tương ứng, t search qua thì có cái thư viện này, ông thử đọc thêm xem cụ thể cần những gì: https://www.npmjs.com/package/fuzzylogic");
+						var defuzzy_value = ;
 						var rule_value = min(min_dep_value, defuzzy_value);
 						rule_values.push(rule_value);
 						rule_weights.push(rule_weight);

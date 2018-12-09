@@ -1,3 +1,5 @@
+var fuzzylogic = require('fuzzylogic'); 
+
 var DirectionManager = {};
 const 
 	HARD_LEFT = "HARD_LEFT",
@@ -5,51 +7,17 @@ const
 	LEFT = "LEFT",
 	RIGHT = "RIGHT",
 	STRAIGHT = "STRAIGHT"
-	
-function _norm(v) {
-	if (v < 0) {
-		return 0;
-	}
-	if (v > 1) {
-		return 1;
-	}
-	return v;
-}
 
 DirectionManager.FarLeft = function(x) {
-	if (x < 0.25) {
-		return 1;
-	}
-	if (x <= 0.4) {
-		return _norm(-6.67 * x + 2.67);
-	}
-	return 0;
+	return fuzzylogic.trapezoid(x, 0, 0, 0.25, 0.4);
 }
 
 DirectionManager.Left = function(x) {
-	if (x < 0.25) {
-		return 0;
-	}
-	if (x <= 0.4) {
-		return _norm(6.67 * x - 1.67);
-	}
-	if (x <= 0.5) {
-		return _norm(-10 * x + 5);
-	}
-	return 0;
+	return fuzzylogic.triangle(x, 0.25, 0.4, 0.5);
 }
 
-DirectionManager.Straight = function(x) {
-	if (x < 0.4) {
-		return 0;
-	}
-	if (x <= 0.5) {
-		return _norm(10 * x - 4);
-	}
-	if (x <= 0.6) {
-		return _norm(-10 * x + 6);
-	}
-	return 0;
+DirectionManager.Middle = function(x) {
+	return fuzzylogic.triangle(x, )
 }
 
 DirectionManager.Right = function(x) {
