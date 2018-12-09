@@ -3,6 +3,7 @@ var MapLayer = cc.Layer.extend({
 		this._super();
 		this._lockMap = false;
 		this._isRunning = false;
+		this._trafficLights = [];
 		this.renderBackground();
 		this.renderDrawNode();
 		this.renderCar();
@@ -114,7 +115,8 @@ var MapLayer = cc.Layer.extend({
 			this.drawSector(route._center, route._r - Values.laneWidth, route._startAngle, route._angle, 10, cc.color.WHITE);
 			this.drawDot(route._center);
 			// Draw Traffic line
-			// this.addChild(route.trafficLight());
+			this._trafficLights.push(route.trafficLight());
+			this.addChild(route.trafficLight());
 		}
 	},
 
@@ -199,6 +201,11 @@ var MapLayer = cc.Layer.extend({
 			this._endPoint.setVisible(true);
 			CarController.instance.stop();
 			this.unscheduleUpdate();
+			this._trafficLights.forEach(function(light) {
+				light.removeFromParent(true);
+				light.release();
+			});
+			this._trafficLights = [];
 		} else {
 			this._isRunning = true;
 			var start = this._startPoint.getPosition();

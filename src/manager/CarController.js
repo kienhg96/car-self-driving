@@ -99,17 +99,17 @@ var CarController = cc.Class.extend({
 		this._car.stop();
 	},
 
-	onTick: function(dt, direction, speed, distances) {
+	onTick: function(dt, direction, speed, distances, trafficLight) {
 		if (!distances) {
 			this._car.stop();
 			MapLayer.instance.onStop();
 			cc.log("Car stoped");
 			return null;
 		}
-		return this.directionCtrl(dt, direction, speed, distances);
+		return this.directionCtrl(dt, direction, speed, distances, trafficLight);
 	},
 
-	directionCtrl: function(dt, direction, speed, distances) {
+	directionCtrl: function(dt, direction, speed, distances, trafficLight) {
 		var ratio = distances.left / (distances.left + distances.right);
 		var angle = cc.angleOfVector(direction);
 		var deltaAngle = (ratio - 0.5) * dt * 20;
@@ -122,6 +122,7 @@ var CarController = cc.Class.extend({
 		var nSpeed = (1 - Math.abs(ratio - 0.5)) * BASE_SPEED;
 		// return direction;
 		cc.log("Speed", nSpeed);
+		cc.log("TrafficLight: " + trafficLight.light + ', ' + trafficLight.distance + ', ' + trafficLight.time);
 		return {
 			// direction: CarAssistant.instance.hintDirection(this._car.getPosition()),
 			speed: nSpeed,

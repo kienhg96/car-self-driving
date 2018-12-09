@@ -158,12 +158,31 @@ var CarAssistant = cc.Class.extend({
 		}
 
 		this._routes = routes;
-
+		// this._trafficLights = [];
+		// this._currentTrafficLightIndex = 0;
+		// this._lstDistanceTrafficLight;
+		// for (var i = 0; i < routes.length; i++) {
+		// 	if (routes[i] instanceof CurveRoute) {
+		// 		this._trafficLights.push(routes[i].trafficLight());
+		// 	}
+		// }
 		return routes;
 	},
 
 	routes: function() {
 		return this._routes;
+	},
+
+	nextTrafficLight: function() {
+		if (this._currentRoute instanceof CurveRoute) {
+			return this._currentRoute.trafficLight();
+		} else {
+			if (this._routes[this._currentRouteIndex + 1]) {
+				return this._routes[this._currentRouteIndex + 1].trafficLight();
+			} else {
+				return null;
+			}
+		}
 	},
 
 	hintDirection: function(position) {
