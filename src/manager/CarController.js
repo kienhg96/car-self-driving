@@ -108,7 +108,7 @@ var CarController = cc.Class.extend({
 		}
 		const ratio = distances.left / (distances.left + distances.right);
 		let angle = cc.angleOfVector(direction);
-		const deltaAngle = (ratio - 0.5) * dt * 20;
+		const deltaAngle = (ratio - 0.5) * dt * 15;
 		// cc.log("Angle " + angle);
 		// cc.log("Ratio: " + ratio);
 		// cc.log("Delta Angle: " + deltaAngle);
