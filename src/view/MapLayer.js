@@ -156,7 +156,7 @@ var MapLayer = cc.Layer.extend({
 	},
 
 	onClick: function(location) {
-		cc.log("Add Rocks: " + JSON.stringify(location));
+		// cc.log("Add Rocks: " + JSON.stringify(location));
 		// Convert Screen location to map position
 		var mapPosition = this.getPosition();
 		var mapScale = this.getScale();

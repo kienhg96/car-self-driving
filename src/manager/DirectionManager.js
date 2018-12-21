@@ -68,89 +68,69 @@ Rock.Right = function(v) {
 // 	{ IF: Deviation.FarRight, THEN: Steering.HardLeft },
 // ];
 
-const DirectionRules = [
-	{ 
-		IF: [Deviation.FarLeft, Rock.Far, Rock.Left], 
-		THEN: Steering.HardRight
-	},
-	{ 
-		IF: [Deviation.Left, Rock.Far, Rock.Left],
-		THEN: Steering.HardRight
-	},
-	{
-		IF: [Deviation.Middle, Rock.Far, Rock.Left], 
-		THEN: Steering.Right 
-	},
-	{ 
-		IF: [Deviation.Right, Rock.Far, Rock.Left], 
-		THEN: Steering.Straight 
-	},
-	{ 
-		IF: [Deviation.FarRight, Rock.Far, Rock.Left], 
-		THEN: Steering.Left 
-	},
-	{ 
-		IF: [Deviation.FarLeft, Rock.Near, Rock.Left], 
-		THEN: Steering.HardRight
-	},
-	{ 
-		IF: [Deviation.Left, Rock.Near, Rock.Left],
-		THEN: Steering.HardRight
-	},
-	{
-		IF: [Deviation.Middle, Rock.Near, Rock.Left], 
-		THEN: Steering.HardRight 
-	},
-	{ 
-		IF: [Deviation.Right, Rock.Near, Rock.Left], 
-		THEN: Steering.Right 
-	},
-	{ 
-		IF: [Deviation.FarRight, Rock.Near, Rock.Left], 
-		THEN: Steering.Straight 
-	},
-	// Right Rocks
-	{ 
-		IF: [Deviation.FarLeft, Rock.Far, Rock.Right], 
-		THEN: Steering.HardRight
-	},
-	{ 
-		IF: [Deviation.Left, Rock.Far, Rock.Right],
-		THEN: Steering.HardRight
-	},
-	{
-		IF: [Deviation.Middle, Rock.Far, Rock.Right], 
-		THEN: Steering.Right 
-	},
-	{ 
-		IF: [Deviation.Right, Rock.Far, Rock.Right], 
-		THEN: Steering.Straight 
-	},
-	{ 
-		IF: [Deviation.FarRight, Rock.Far, Rock.Right], 
-		THEN: Steering.Left 
-	},
-	{ 
-		IF: [Deviation.FarLeft, Rock.Near, Rock.Right], 
-		THEN: Steering.Straight
-	},
-	{ 
-		IF: [Deviation.Left, Rock.Near, Rock.Right],
-		THEN: Steering.Left
-	},
-	{
-		IF: [Deviation.Middle, Rock.Near, Rock.Right], 
-		THEN: Steering.HardLeft 
-	},
-	{ 
-		IF: [Deviation.Right, Rock.Near, Rock.Right], 
-		THEN: Steering.HardLeft 
-	},
-	{ 
-		IF: [Deviation.FarRight, Rock.Near, Rock.Right], 
-		THEN: Steering.HardLeft 
-	},
-];
+const DirectionRules = [{
+	IF: [Deviation.FarLeft, Rock.Far, Rock.Left], 
+	THEN: Steering.HardRight
+},{ 
+	IF: [Deviation.Left, Rock.Far, Rock.Left],
+	THEN: Steering.HardRight
+},{
+	IF: [Deviation.Middle, Rock.Far, Rock.Left], 
+	THEN: Steering.Right 
+},{ 
+	IF: [Deviation.Right, Rock.Far, Rock.Left], 
+	THEN: Steering.Straight 
+},{ 
+	IF: [Deviation.FarRight, Rock.Far, Rock.Left], 
+	THEN: Steering.Left 
+},{ 
+	IF: [Deviation.FarLeft, Rock.Near, Rock.Left], 
+	THEN: Steering.HardRight
+},{ 
+	IF: [Deviation.Left, Rock.Near, Rock.Left],
+	THEN: Steering.HardRight
+},{
+	IF: [Deviation.Middle, Rock.Near, Rock.Left], 
+	THEN: Steering.HardRight 
+},{ 
+	IF: [Deviation.Right, Rock.Near, Rock.Left], 
+	THEN: Steering.Right 
+},{ 
+	IF: [Deviation.FarRight, Rock.Near, Rock.Left], 
+	THEN: Steering.Straight 
+},
+// Right Rocks
+{ 
+	IF: [Deviation.FarLeft, Rock.Far, Rock.Right], 
+	THEN: Steering.HardRight
+},{ 
+	IF: [Deviation.Left, Rock.Far, Rock.Right],
+	THEN: Steering.HardRight
+},{
+	IF: [Deviation.Middle, Rock.Far, Rock.Right], 
+	THEN: Steering.Right 
+},{ 
+	IF: [Deviation.Right, Rock.Far, Rock.Right], 
+	THEN: Steering.Straight 
+},{ 
+	IF: [Deviation.FarRight, Rock.Far, Rock.Right], 
+	THEN: Steering.Left 
+},{ 
+	IF: [Deviation.FarLeft, Rock.Near, Rock.Right], 
+	THEN: Steering.Straight
+},{ 
+	IF: [Deviation.Left, Rock.Near, Rock.Right],
+	THEN: Steering.Left
+},{
+	IF: [Deviation.Middle, Rock.Near, Rock.Right], 
+	THEN: Steering.HardLeft 
+},{ 
+	IF: [Deviation.Right, Rock.Near, Rock.Right], 
+	THEN: Steering.HardLeft 
+},{ 
+	IF: [Deviation.FarRight, Rock.Near, Rock.Right], 
+	THEN: Steering.HardLeft 
+}];
 
 function calcDirection(x, side, rockDistance) {
 	var normRockDistance = Math.min(150, rockDistance) / 150;
@@ -178,6 +158,5 @@ function calcDirection(x, side, rockDistance) {
 		Y += y;
 	}
 	const centroid = X / Y;
-	cc.log("centroid " + centroid);
 	return centroid;
 }

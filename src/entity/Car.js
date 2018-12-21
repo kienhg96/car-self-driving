@@ -1,4 +1,4 @@
-var BASE_SPEED = 50;
+var BASE_SPEED = 70;
 var LIGHT_STATUS = ['RED', 'YELLO', 'GREEN'];
 
 var Car = cc.Sprite.extend({

@@ -95,7 +95,6 @@ var CarController = cc.Class.extend({
 		rockPositions.forEach(rock => {
 			const side = CarAssistant.instance.findRockPosition(rock);
 			if (side) {
-				cc.log(side);
 				this._rocks.push({
 					position: rock,
 					side: side
@@ -128,13 +127,16 @@ var CarController = cc.Class.extend({
 		var routeDir = CarAssistant.instance.hintDirection(this._car.getPosition());
 		var angle = cc.angleOfVector(routeDir);
 		
-		var centroid = calcDirection(ratio, side, rockDistance);
-		var deltaAngle = (0.5 - centroid) * dt * 50;
+		var dir = calcDirection(ratio, side, rockDistance);
+		var speedCoef = calcSpeed(ratio, side, rockDistance);
+		// cc.log(dir, speedCoef);
+		GuiLayer.instance.setValue(speedCoef, dir);
+		var deltaAngle = (0.5 - dir) * dt * 50;
 		angle += deltaAngle;
 
 		return {
 			direction: cc.p(Math.cos(angle), Math.sin(angle)),
-			speed: speed,
+			speed: speedCoef * BASE_SPEED,
 			// direction: direction
 		};
 	}

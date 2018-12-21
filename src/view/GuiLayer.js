@@ -4,6 +4,27 @@ var GuiLayer = cc.Layer.extend({
 		this.renderToggleMapButton();
 		this.renderLockMapButton();
 		this.renderStartButton();
+		this.renderStatuses();
+	},
+
+	renderStatuses: function() {
+		var text = new cc.LabelTTF("Speed: 0", "Arial", 20);
+		text.setFontFillColor(cc.color(113, 244, 66));
+		text.setPosition(0, cc.winSize.height);
+		text.setAnchorPoint(0, 1);
+		this._speedText = text;
+		text = new cc.LabelTTF("Direction: 0", "Arial", 20);
+		text.setFontFillColor(cc.color(113, 244, 66));
+		text.setPosition(0, cc.winSize.height - this._speedText.height);
+		text.setAnchorPoint(0, 1);
+		this._directionText = text;
+		this.addChild(this._speedText);
+		this.addChild(this._directionText);
+	},
+
+	setValue: function(speed, direction) {
+		this._speedText.setString("Speed: " + speed);
+		this._directionText.setString("Direction: " + direction);
 	},
 
 	renderToggleMapButton: function() {
