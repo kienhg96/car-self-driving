@@ -8,7 +8,8 @@ var res = {
     map_lock_btn: "res/map_lock_btn.png",
     start_btn: "res/start_btn.png",
     icon_start: "res/icon_start.png",
-    icon_end: "res/icon_end.png"
+    icon_end: "res/icon_end.png",
+    rock: "res/rock.png"
 };
 
 var g_resources = [];

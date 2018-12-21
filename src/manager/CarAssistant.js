@@ -46,6 +46,21 @@ var CarAssistant = cc.Class.extend({
 		return this._currentRoute.distanceToBorders(position, direction);
 	},
 
+	findRockPosition: function(position) {
+		let distances;
+		for (var i = 0; i < this._routes.length; i++) {
+			if (this._routes[i].isPointInside(position)) {
+				distances = this._routes[i].distanceToBorders(position);
+				if (distances.left > distances.right) {
+					return "RIGHT";
+				} else {
+					return "LEFT";
+				}
+			}
+		}
+		return null;
+	},
+
 	computeCentroid: function(E, A, F) {
 		var vAE = cc.v(A, E);
 		var vAF = cc.v(A, F);
@@ -158,12 +173,31 @@ var CarAssistant = cc.Class.extend({
 		}
 
 		this._routes = routes;
-
+		// this._trafficLights = [];
+		// this._currentTrafficLightIndex = 0;
+		// this._lstDistanceTrafficLight;
+		// for (var i = 0; i < routes.length; i++) {
+		// 	if (routes[i] instanceof CurveRoute) {
+		// 		this._trafficLights.push(routes[i].trafficLight());
+		// 	}
+		// }
 		return routes;
 	},
 
 	routes: function() {
 		return this._routes;
+	},
+
+	nextTrafficLight: function() {
+		if (this._currentRoute instanceof CurveRoute) {
+			return this._currentRoute.trafficLight();
+		} else {
+			if (this._routes[this._currentRouteIndex + 1]) {
+				return this._routes[this._currentRouteIndex + 1].trafficLight();
+			} else {
+				return null;
+			}
+		}
 	},
 
 	hintDirection: function(position) {

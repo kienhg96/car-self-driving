@@ -1,12 +1,12 @@
 var CarController = cc.Class.extend({
-	ctor: function() {
+	ctor: function () {
 		this.readMapConfig();
 	},
 
-	readMapConfig: function() {
+	readMapConfig: function () {
 		var nodes = [];
 		var edges = [];
-		cc.loader.loadTxt('res/edges.tsv', function(err, text) {
+		cc.loader.loadTxt('res/edges.tsv', function (err, text) {
 			if (err) {
 				cc.log("ERROR" + err);
 			}
@@ -42,7 +42,7 @@ var CarController = cc.Class.extend({
 			}
 			edgeMatrix.push(row);
 		}
-		edges.forEach(function(edge) {
+		edges.forEach(function (edge) {
 			var distance = cc.distance(nodes[edge.x], nodes[edge.y]);
 			edgeMatrix[edge.x][edge.y] = distance;
 			edgeMatrix[edge.y][edge.x] = distance;
@@ -50,19 +50,19 @@ var CarController = cc.Class.extend({
 		this._edgesMatrix = edgeMatrix;
 	},
 
-	nodes: function() {
+	nodes: function () {
 		return this._nodes;
 	},
 
-	edges: function() {
+	edges: function () {
 		return this._edges;
 	},
 
-	setCar: function(car) {
+	setCar: function (car) {
 		this._car = car;
 	},
 
-	run: function(start, end) {
+	run: function (start, end) {
 		var nodes = this._nodes;
 		var startNodeIndex = 0;
 		var endNodeIndex = 0;
@@ -84,44 +84,58 @@ var CarController = cc.Class.extend({
 
 		// Calc verts
 		var path = dijktra(startNodeIndex, endNodeIndex, this._edgesMatrix);
-		var verts = path.map(function(index) {
+		var verts = path.map(function (index) {
 			return nodes[index];
 		});
 		start = verts[0];
-		this._car.setPosition(start);
+		this._car.setPosition(cc.p(start.x + 10, start.y + 10));
 		this._car.run(verts);
+		this._rocks = [];
+		var rockPositions = MapLayer.instance._rocks.map(rock => rock.getPosition());
+		rockPositions.forEach(rock => {
+			const side = CarAssistant.instance.findRockPosition(rock);
+			if (side) {
+				cc.log(side);
+				this._rocks.push({
+					position: rock,
+					side: side
+				});
+			}
+		});
+		this._car.setRocks(this._rocks);
 		// MapLayer.instance.centerTo(start);
 		MapLayer.instance.clearRoundBorders();
 		MapLayer.instance.showRoundBorders();
 	},
 
-	stop: function() {
+	stop: function () {
 		this._car.stop();
 	},
 
-	onTick: function(dt, direction, speed, distances) {
+	onTick: function(dt, direction, speed, distances, trafficLight, side, rockDistance) {
 		if (!distances) {
 			this._car.stop();
 			MapLayer.instance.onStop();
 			cc.log("Car stoped");
 			return null;
 		}
-		const ratio = distances.left / (distances.left + distances.right);
-		let angle = cc.angleOfVector(direction);
-		const deltaAngle = (ratio - 0.5) * dt * 15;
-		// cc.log("Angle " + angle);
-		// cc.log("Ratio: " + ratio);
-		// cc.log("Delta Angle: " + deltaAngle);
-		angle += deltaAngle;
-		const newDirection = cc.p(
-			Math.cos(angle),
-			Math.sin(angle)
-		);
-		// return direction;
-		return {
-			// direction: CarAssistant.instance.hintDirection(this._car.getPosition()),
-			speed: speed,
-			direction: newDirection
-		};
+		return this.directionCtrl(dt, direction, speed, distances, trafficLight, side || "LEFT", rockDistance || 1000000);
 	},
+
+	directionCtrl: function(dt, direction, speed, distances, trafficLight, side, rockDistance) {
+		var ratio = distances.left / (distances.left + distances.right);
+		// var deltaAngle = (ratio - 0.5) * dt * 20;
+		var routeDir = CarAssistant.instance.hintDirection(this._car.getPosition());
+		var angle = cc.angleOfVector(routeDir);
+		
+		var centroid = calcDirection(ratio, side, rockDistance);
+		var deltaAngle = (0.5 - centroid) * dt * 50;
+		angle += deltaAngle;
+
+		return {
+			direction: cc.p(Math.cos(angle), Math.sin(angle)),
+			speed: speed,
+			// direction: direction
+		};
+	}
 });

@@ -3,6 +3,8 @@ var MapLayer = cc.Layer.extend({
 		this._super();
 		this._lockMap = false;
 		this._isRunning = false;
+		this._trafficLights = [];
+		this._rocks = [];
 		this.renderBackground();
 		this.renderDrawNode();
 		this.renderCar();
@@ -114,6 +116,7 @@ var MapLayer = cc.Layer.extend({
 			this.drawSector(route._center, route._r - Values.laneWidth, route._startAngle, route._angle, 10, cc.color.WHITE);
 			this.drawDot(route._center);
 			// Draw Traffic line
+			// this._trafficLights.push(route.trafficLight());
 			// this.addChild(route.trafficLight());
 		}
 	},
@@ -133,14 +136,41 @@ var MapLayer = cc.Layer.extend({
 		}, this);
 	},
 
-	onTouchBegan: function(touch, event) { return true; },
+	onTouchBegan: function(touch, event) {
+		var target = event.getCurrentTarget();
+		target._touchMoved = false;
+		return true;
+	},
 	onTouchMoved: function(touch, event) {
 		var delta = touch.getDelta();
 		var target = event.getCurrentTarget();
 		target.x += delta.x;
 		target.y += delta.y;
+		target._touchMoved = true;
 	},
-	onTouchEnded: function(touch, event) {},
+	onTouchEnded: function(touch, event) {
+		var target = event.getCurrentTarget();
+		if (!target._touchMoved) {
+			target.onClick(touch.getLocation());
+		}
+	},
+
+	onClick: function(location) {
+		cc.log("Add Rocks: " + JSON.stringify(location));
+		// Convert Screen location to map position
+		var mapPosition = this.getPosition();
+		var mapScale = this.getScale();
+		var winSize = cc.winSize;
+		var position = cc.p(
+			(location.x - winSize.width / 2 - mapPosition.x) / mapScale + winSize.width / 2,
+			(location.y - winSize.height / 2 - mapPosition.y) / mapScale + winSize.height / 2
+		);
+		var rock = new cc.Sprite(res.rock);
+		rock.setPosition(position);
+		this._rocks.push(rock);
+		rock.setScale(0.6);
+		this.addChild(rock);
+	},
 
 	onKeyPressed: function(key, event) {
 		var target = event.getCurrentTarget();
@@ -199,6 +229,11 @@ var MapLayer = cc.Layer.extend({
 			this._endPoint.setVisible(true);
 			CarController.instance.stop();
 			this.unscheduleUpdate();
+			this._trafficLights.forEach(function(light) {
+				light.removeFromParent(true);
+				light.release();
+			});
+			this._trafficLights = [];
 		} else {
 			this._isRunning = true;
 			var start = this._startPoint.getPosition();

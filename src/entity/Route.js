@@ -76,6 +76,7 @@ var CurveRoute = Route.extend({
 	},
 
 	distanceToBorders: function(position, vDirection) {
+		vDirection = vDirection || this._vPP;
 		var vPC = cc.v(position, this._center);
 		var PC = cc.len(vPC);
 		var smallDistance = PC - this._r + Values.laneWidth;
@@ -112,7 +113,11 @@ var CurveRoute = Route.extend({
 	createTrafficLight: function() {
 		this._trafficLight = new TrafficLight();
 		this._trafficLight.retain();
-		this._trafficLight.setPosition(this._center);
+		this._trafficLight.setPosition(this._M);
+	},
+
+	middle: function() {
+		return this._M;
 	},
 
 	trafficLight: function() {

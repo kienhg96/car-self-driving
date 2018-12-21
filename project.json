@@ -15,6 +15,7 @@
         "src/resource.js",
         "src/utils.js",
         "src/dijktra.js",
+        "src/fuzzylogic.js",
 
         "src/entity/Car.js",
         "src/entity/TrafficLight.js",
@@ -23,6 +24,9 @@
 
         "src/manager/CarAssistant.js",
         "src/manager/CarController.js",
+        "src/manager/DirectionManager.js",
+        "src/manager/LightStatus.js",
+        "src/manager/defuzzy.js",
 
         "src/view/FlagPointSprite.js",
         "src/view/MapLayer.js",
